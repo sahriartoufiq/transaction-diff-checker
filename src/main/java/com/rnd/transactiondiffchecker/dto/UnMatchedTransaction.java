@@ -5,16 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TrxComparisonDTO {
+public class UnMatchedTransaction {
 
-    private int totalRecords;
-    private int matchingRecords;
-    private int unmatchedRecords;
-    private List<UnMatchedTransaction> unmatchedTrxList;
+    private TransactionDetailDTO originalTransaction;
+    private TransactionDetailDTO probableMatchTransaction;
 }
