@@ -4,6 +4,7 @@ import com.rnd.transactiondiffchecker.dto.TransactionDetailDTO;
 import com.rnd.transactiondiffchecker.dto.TrxComparisonDTO;
 import com.rnd.transactiondiffchecker.dto.UnMatchedTransaction;
 import com.rnd.transactiondiffchecker.dto.response.TrxComparisonResponse;
+import com.rnd.transactiondiffchecker.exception.ApiException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,18 +23,16 @@ public class TrxComparisonService {
     private final FileIOService fileIOService;
 
     public TrxComparisonResponse getTrxComparisonResponse(MultipartFile clientReport,
-                                                          MultipartFile orgReport) throws IOException {
+                                                          MultipartFile orgReport) {
 
-        var clientReportDataList = fileIOService.getTransactionDetailList(clientReport);
-        var orgReportDataList = fileIOService.getTransactionDetailList(orgReport);
+        try {
+            var clientReportDataList = fileIOService.getTransactionDetailList(clientReport);
+            var orgReportDataList = fileIOService.getTransactionDetailList(orgReport);
 
-        return getTrxComparisonResponse(orgReportDataList, clientReportDataList);
-    }
-
-    private Map<String, TransactionDetailDTO> getDataMap(List<TransactionDetailDTO> trxDataList) {
-        return trxDataList
-                .stream()
-                .collect(Collectors.toMap(this::getTransactionUniqueKey, trxDetail -> trxDetail, (o1, o2) -> o1));
+            return getTrxComparisonResponse(orgReportDataList, clientReportDataList);
+        } catch (IOException ex) {
+            throw new ApiException("Invalid file content!");
+        }
     }
 
     private TrxComparisonResponse getTrxComparisonResponse(List<TransactionDetailDTO> clientReportDataList,
@@ -51,7 +50,7 @@ public class TrxComparisonService {
         var trxIdDataMap = getDataMap(otherPartyDataList);
         var unMatchedList = dataList.stream()
                 .filter(trxData -> {
-                    if (trxIdDataMap.containsKey(getTransactionUniqueKey(trxData))) {
+                    if (trxIdDataMap.containsKey(getTrxKeyWithTrxId(trxData))) {
                         trxIdDataMap.remove(trxData.getTransactionID());
 
                         return false;
@@ -72,19 +71,43 @@ public class TrxComparisonService {
                 .build();
     }
 
+    private Map<String, TransactionDetailDTO> getDataMap(List<TransactionDetailDTO> trxDataList) {
+        return trxDataList
+                .stream()
+                .collect(Collectors.toMap(this::getTrxKeyWithTrxId, trxDetail -> trxDetail, (o1, o2) -> o1));
+    }
+
+    private Map<String, TransactionDetailDTO> getDataMapByProbableKey(List<TransactionDetailDTO> trxDataList) {
+        return trxDataList
+                .stream()
+                .collect(Collectors.toMap(this::getTrxKeyWithoutTrxId, trxDetail -> trxDetail, (o1, o2) -> o1));
+    }
+
     private List<UnMatchedTransaction> getUnMatchedTransactionList(List<TransactionDetailDTO> unMatchedList,
                                                                    List<TransactionDetailDTO> otherPartyDataList) {
 
-        List<UnMatchedTransaction> unMatchedTrxList = unMatchedList.stream()
+        var otherPartyDataMap = getDataMapByProbableKey(otherPartyDataList);
+
+        return unMatchedList.stream()
                 .map(transaction -> UnMatchedTransaction.builder()
                         .originalTransaction(transaction)
+                        .probableMatchTransaction(otherPartyDataMap
+                                .get(getTrxKeyWithoutTrxId(transaction)))
                         .build())
                 .collect(Collectors.toList());
-
-        return unMatchedTrxList;
     }
 
-    private String getTransactionUniqueKey(TransactionDetailDTO transaction) {
-        return transaction.getTransactionID() + "-" + transaction.getTransactionType();
+    private String getTrxKeyWithTrxId(TransactionDetailDTO transaction) {
+        return String.format("%s-%s",
+                transaction.getTransactionID(),
+                transaction.getTransactionType());
+    }
+
+    private String getTrxKeyWithoutTrxId(TransactionDetailDTO transaction) {
+        return String.format("%s-%s-%s-%s",
+                transaction.getWalletReference(),
+                transaction.getTransactionType(),
+                transaction.getTransactionAmount(),
+                transaction.getTransactionDate());
     }
 }

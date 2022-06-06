@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-
-
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -20,8 +17,8 @@ public class TrxComparisonController {
     private final TrxComparisonService trxComparisonService;
 
     @PostMapping("/api/transactions/compare")
-    private TrxComparisonResponse compareTransaction(@RequestParam("clientReport") MultipartFile clientReport,
-                                                     @RequestParam("orgReport") MultipartFile orgReport) throws IOException {
+    private TrxComparisonResponse compareTransaction(@RequestParam(value = "clientReport") MultipartFile clientReport,
+                                                     @RequestParam(value = "orgReport") MultipartFile orgReport) {
 
         return trxComparisonService.getTrxComparisonResponse(clientReport, orgReport);
     }
