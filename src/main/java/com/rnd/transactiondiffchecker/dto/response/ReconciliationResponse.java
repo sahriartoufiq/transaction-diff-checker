@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TrxComparisonResponse {
+public class ReconciliationResponse {
 
     private TrxComparisonDTO clientResult;
     private TrxComparisonDTO orgResult;

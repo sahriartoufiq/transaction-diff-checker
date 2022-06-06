@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UnMatchedTransaction {
+public class UnMatchedRecord {
 
     private TransactionDetailDTO originalTransaction;
     private TransactionDetailDTO probableMatchTransaction;
