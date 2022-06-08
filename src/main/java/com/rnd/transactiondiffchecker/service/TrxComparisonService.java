@@ -17,11 +17,10 @@ public class TrxComparisonService {
     private final HelperService helperService;
 
     public TrxComparisonDTO getTrxComparisonDTO(List<TransactionDetailDTO> dataList,
-                                                 List<TransactionDetailDTO> otherPartyDataList) {
+                                                List<TransactionDetailDTO> otherPartyDataList) {
 
         var trxIdDataMap = getDataMap(otherPartyDataList);
         var unMatchedList = getUnMatchedTrxList(dataList, trxIdDataMap);
-
         var total = dataList.size();
         var unMatched = unMatchedList.size();
 
@@ -55,11 +54,11 @@ public class TrxComparisonService {
                 .collect(Collectors.toMap(helperService::getTrxKeyWithTrxId, trxDetail -> trxDetail, (o1, o2) -> o1));
     }
 
-    private Map<String, TransactionDetailDTO> getDataMapByProbableKey(List<TransactionDetailDTO> trxDataList) {
+    private Map<String, String> getDataMapByProbableKey(List<TransactionDetailDTO> trxDataList) {
         return trxDataList
                 .stream()
                 .collect(Collectors
-                        .toMap(helperService::getTrxKeyWithoutTrxId, trxDetail -> trxDetail, (o1, o2) -> o1));
+                        .toMap(helperService::getTrxKeyWithoutTrxId, TransactionDetailDTO::getTransactionID, (o1, o2) -> o1));
     }
 
     private List<UnMatchedRecord> getUnMatchedTransactionList(List<TransactionDetailDTO> unMatchedList,
@@ -69,10 +68,14 @@ public class TrxComparisonService {
 
         return unMatchedList.stream()
                 .map(transaction -> UnMatchedRecord.builder()
-                        .originalTransaction(transaction)
-                        .probableMatchTransaction(otherPartyDataMap
+                        .transactionId(transaction.getTransactionID())
+                        .transactionDate(transaction.getTransactionDate())
+                        .transactionAmount(transaction.getTransactionAmount())
+                        .walletReference(transaction.getWalletReference())
+                        .probableMatchTrxId(otherPartyDataMap
                                 .get(helperService.getTrxKeyWithoutTrxId(transaction)))
                         .build())
                 .collect(Collectors.toList());
     }
 }
+

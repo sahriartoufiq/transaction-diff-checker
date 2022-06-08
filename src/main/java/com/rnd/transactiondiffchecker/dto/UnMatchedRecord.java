@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UnMatchedRecord {
 
-    private TransactionDetailDTO originalTransaction;
-    private TransactionDetailDTO probableMatchTransaction;
+    private String transactionId;
+    private String walletReference;
+    private String transactionDate;
+    private String transactionAmount;
+    private String probableMatchTrxId;
 }
