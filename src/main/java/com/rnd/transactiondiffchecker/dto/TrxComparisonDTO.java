@@ -16,5 +16,5 @@ public class TrxComparisonDTO {
     private int totalRecords;
     private int matchingRecords;
     private int unmatchedRecords;
-    private List<UnMatchedRecord> unmatchedRecordList;
+    private List<UnmatchedRecord> unmatchedRecordList;
 }

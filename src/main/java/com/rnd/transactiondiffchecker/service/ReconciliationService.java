@@ -1,5 +1,6 @@
 package com.rnd.transactiondiffchecker.service;
 
+import com.rnd.transactiondiffchecker.dto.TransactionDetailDTO;
 import com.rnd.transactiondiffchecker.dto.response.ReconciliationResponse;
 import com.rnd.transactiondiffchecker.exception.ApiException;
 import lombok.RequiredArgsConstructor;
@@ -14,21 +15,24 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class ReconciliationService {
 
-    private final FileIOService fileIOService;
+    private final CsvProcessorService csvProcessorService;
     private final TrxComparisonService trxComparisonService;
 
     public ReconciliationResponse getTrxComparisonResponse(MultipartFile clientReport,
                                                            MultipartFile orgReport) {
 
         try {
-            var clientReportDataList = fileIOService.getTransactionDetailList(clientReport);
-            var orgReportDataList = fileIOService.getTransactionDetailList(orgReport);
+            var clientReportDataList = csvProcessorService.getRecordList(clientReport,
+                    TransactionDetailDTO.class);
+            var orgReportDataList = csvProcessorService.getRecordList(orgReport,
+                    TransactionDetailDTO.class);
 
             return ReconciliationResponse.builder()
                     .orgResult(trxComparisonService.getTrxComparisonDTO(orgReportDataList, clientReportDataList))
                     .clientResult(trxComparisonService.getTrxComparisonDTO(clientReportDataList, orgReportDataList))
                     .build();
         } catch (IOException ex) {
+            log.error("Failed to retrieve reconciliation diff, error {}", ex.getMessage());
             throw new ApiException("Invalid file content!");
         }
     }

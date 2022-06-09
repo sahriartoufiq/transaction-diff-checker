@@ -34,7 +34,8 @@ public class GlobalExceptionHandler {
 
     private ErrorResponse getErrorResponse(String errorMessage) {
         return ErrorResponse.builder()
-                .error(errorMessage)
+                .isError(true)
+                .errorMessage(errorMessage != null ? errorMessage : "An error occurred!")
                 .build();
     }
 }

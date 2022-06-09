@@ -1,7 +1,6 @@
 package com.rnd.transactiondiffchecker.service;
 
 import com.opencsv.bean.CsvToBeanBuilder;
-import com.rnd.transactiondiffchecker.dto.TransactionDetailDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,13 +12,13 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class FileIOService {
+public class CsvProcessorService {
 
-    public List<TransactionDetailDTO> getTransactionDetailList(MultipartFile file) throws IOException {
+    public <T> List<T> getRecordList(MultipartFile file, Class<T> recordType) throws IOException {
         var buffer = new BufferedReader(new InputStreamReader(file.getInputStream()));
 
-        return new CsvToBeanBuilder<TransactionDetailDTO>(buffer)
-                .withType(TransactionDetailDTO.class)
+        return new CsvToBeanBuilder<T>(buffer)
+                .withType(recordType)
                 .build()
                 .parse();
     }

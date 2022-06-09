@@ -9,9 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UnMatchedRecord {
+public class UnmatchedRecord {
 
     private String transactionId;
+    private String transactionDescription;
     private String walletReference;
     private String transactionDate;
     private String transactionAmount;

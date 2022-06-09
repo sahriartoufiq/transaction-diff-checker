@@ -11,5 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ErrorResponse {
 
-    private String error;
+    private boolean isError;
+    private String errorMessage;
 }
