@@ -4,12 +4,14 @@ import com.rnd.transactiondiffchecker.dto.TransactionDetailDTO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static com.rnd.transactiondiffchecker.util.TransactionUtils.getTrxKeyWithTrxId;
+
 public class TransactionUtilsTest {
 
     @Test
     public void givenValidValue_whenProcessValue_thenReturnValueWithTrxId() {
         var transaction = getValidTransaction();
-        var actualResult = TransactionUtils.getTrxKeyWithTrxId(transaction);
+        var actualResult = getTrxKeyWithTrxId(transaction);
         var expectedResult = "0464012779360248-deduct";
 
         Assertions.assertEquals(actualResult, expectedResult);
